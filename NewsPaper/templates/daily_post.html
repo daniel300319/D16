@@ -8,7 +8,7 @@
 <h2>Hello! New weeks posts!</h2>
 <ul>
     {% for post in posts %}
-        <li><a href="{{ link }}{{ post.get_absolute_url }}">{{ post.post_name }}</a></li>
+        <li><a href="{{ link }}{{ post.get_absolute_url }}">{{ post.post_title }}</a></li>
     {% endfor %}
 </ul>
 </body>

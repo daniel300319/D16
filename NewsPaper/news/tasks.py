@@ -1,50 +1,66 @@
 from django.core.mail import EmailMultiAlternatives
 from celery import shared_task
-from celery.schedules import crontab
-import time
+from django.template.loader import render_to_string
+from datetime import *
+from NewsPaper.NewsPaper import settings
+from NewsPaper.NewsPaper.settings import SITE_URL
+from NewsPaper.news.models import Post, Category
 
 
 @shared_task
-def hello():
-    time.sleep(10)
-    print('Hello, world!')
+def notify_about_new_post(instance):
+        categories = instance.category.all()
+        subscribers: list[str] = []
+        for category in categories:
+            subscribers += category.subscribers.all()
+
+        subscribers = [s.email for s in subscribers]
+
+        send_notification(instance.preview(), instance.pk, instance.post_title, subscribers)
+
 
 
 @shared_task
-def printer(N):
-    for i in range(N):
-        time.sleep(1)
-        print(i+1)
-
-
-# Задача на отправку письма после добавления новой публикации
-# будет использоваться в представлении "PostCreateView" (news/views)
-@shared_task
-# создаем функцию и принимаем аргументы из функции представления "sending_emails_to_subscribers"
-def email_task(subscriber_username, subscriber_email, html_content):
-    # формирование письма
+def week_news_notification():
+    today = datetime.now()
+    last_week = today - timedelta(days=7)
+    posts = Post.objects.filter(post_date__gte=last_week)
+    categories = set(posts.values_list('category__category_name', flat=True))
+    subscribers = set(Category.objects.filter(category_name__in=categories).values_list('subscribers__email', flat=True))
+    html_content = render_to_string(
+        'daily_post.html',
+        {
+            'link': settings.SITE_URL,
+            'posts': posts,
+        }
+    )
     msg = EmailMultiAlternatives(
-                    subject=f'Здравствуй, {subscriber_username}. Новая статья в вашем разделе!',
-                    from_email='d.agur@yandex.ru',
-                    to=[subscriber_email]
-                )
-    # подключение html шаблона
+        subject='Статьи за неделю',
+        body='',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=subscribers,
+    )
     msg.attach_alternative(html_content, 'text/html')
-    # код ниже временно отключен
-    # отправка письма
-    # msg.send()
+    msg.send()
 
 
-# задача на отправку письма по еженедельной рассылке
-# будет использоваться в файле "runapscheduler.py" (news/management/commands)
-@shared_task
-def weekly_email_task(subscriber_username, subscriber_email, html_content):
-    msg = EmailMultiAlternatives(
-        subject=f'Здравствуй, {subscriber_username}, новые статьи за прошлую неделю в вашем разделе!',
-        from_email='d.agur@yandex.ru',
-        to=[subscriber_email]
+def send_notification(preview, pk, post_title, subscribers):
+    post = Post.objects.get(pk=pk)
+    html_context = render_to_string(
+        'post_created_email.html',
+        {
+            'text': post.post_text,
+            'link': f'{SITE_URL}/news/{pk}',
+            'post': post,
+        }
     )
 
-    msg.attach_alternative(html_content, 'text/html')
-    # код ниже временно отключен
-    # msg.send()
+    msg = EmailMultiAlternatives(
+        subject=post_title,
+        body='',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=subscribers,
+    )
+
+    msg.attach_alternative(html_context, 'text/html')
+    msg.send()

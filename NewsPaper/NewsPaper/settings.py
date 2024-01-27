@@ -13,6 +13,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+import redis
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -170,7 +173,7 @@ STATICFILES_DIRS = STATICFILES_DIRS = [
 # LOGIN_REDIRECT_URL = '/
 
 # load_dotenv()
-
+SITE_URL = 'http://127.0.0.1:8000'
 EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
 EMAIL_PORT = 465  # порт smtp сервера тоже одинаковы
 EMAIL_HOST_USER = 'd.agur'
@@ -182,3 +185,12 @@ SERVER_EMAIL = 'd.agur@yandex.ru'
 
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
+# Через РедисЛабс
+# CELERY_BROKER_URL = 'redis://:Vet7nJ0FXRSmQBLTqvRmYlEw9pYjbES3@redis-17393.c228.us-central1-1.gce.cloud.redislabs.com:17393/0'
+# CELERY_RESULT_BACKEND = 'redis://:Vet7nJ0FXRSmQBLTqvRmYlEw9pYjbES3@redis-17393.c228.us-central1-1.gce.cloud.redislabs.com:17393/0'
+# Через Редис и Линукс
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']  # допустимый формат данных.
+CELERY_TASK_SERIALIZER = 'json'  # метод сериализации задач.
+CELERY_RESULT_SERIALIZER = 'json'  # метод сериализации результатов.

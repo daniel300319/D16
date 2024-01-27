@@ -14,7 +14,7 @@ BAD_WORDS = {
 }
 
 @register.filter()
-def censore(value: str):
+def censor(value: str):
     words = value.split(' ')
     new_text = ''
 

@@ -1,4 +1,4 @@
-import logging, datetime
+import logging
 
 from django.conf import settings
 
@@ -10,49 +10,67 @@ from django.template.loader import render_to_string
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
-from NewsPaper.news.models import Post, Category
+from datetime import datetime
+
+from NewsPaper.news.models import Category, Post
+from NewsPaper.news.tasks import weekly_email_task
+
 
 logger = logging.getLogger(__name__)
 
 
-# наша задача по выводу текста на экран
-def my_job():
-    today = datetime.datetime.now()
-    last_week = today - datetime.timedelta(days=7)
-    posts = Post.objects.filter(post_time_in__gte=last_week)
-    #for cat in Category.objects.all():
-        #post_list = posts.filter(post_category=cat)
-        #if post_list:
-            #subscribers = cat.subscribers.values('username', 'email')
-            #recipients = []
-            #for sub in subscribers:
-                #recipients.append(sub['email'])
-    categories = set(posts.values_list('post_category__category_name', flat=True))
-    subscribers = set(Category.objects.filter(category_name__in=categories).values_list('subscribers__email', flat=True))
-    print('Сигнал сработал')
+# рассылка подписчикам новых новостей за прошлую неделю по определенным категориям новостей
+def news_sender():
+    # Первый цикл - получение из модели категории по очереди всех объектов, всех наименований категорий
+    for category in Category.objects.all():
 
-    html_content = render_to_string(
-        'daily_post.html',
-        {
-            'link': settings.SITE_URL,
-            'posts': posts,
-        }
-    )
+        # пустой список для будущего формирования списка статей, разбитых по категориям + ссылка перехода на каждую
+        # статью, своя уникальная рядом с названием статьи
+        news_from_each_category = []
 
-    msg = EmailMultiAlternatives(
-        subject='Weeeks posts',
-        body='',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=subscribers,
-    )
+        # определение номера прошлой недели
+        week_number_last = datetime.now().isocalendar()[1]-1
 
-    msg.attach_alternative(html_content, 'text/html')
-    msg.send()
+        # Второй цикл - из первого цикла получим рк категории, и подставляем его в запрос, в первый фильтр, во второй
+        # фильтр подставляем значение предыдущей недели, то есть показать статьи с датой создания предыдущей недели
+        for post in Post.objects.filter(post_category_id=category.id,
+                                        time_of_creation__week=week_number_last).values('pk',
+                                                                                        'title',
+                                                                                        'time_of_creation',
+                                                                                        'post_category_id__name'):
+
+            # преобразуем дату в человеческий вид - убираем секунды и прочее
+            date_format = post.get("time_of_creation").strftime("%d/%m/%Y")
+
+            # из данных запроса выдираем нужные нам поля (time_of_creation - для проверки выводится),
+            # и из значений данных полей формируем заголовок и реальную ссылку на переход на статью на наш сайт
+            post = (f' http://127.0.0.1:8000/posts/{post.get("pk")}, Заголовок: {post.get("title")}, '
+                   f' Категория: {post.get("post_category_id__name")}, Дата создания: {date_format}')
+
+            # каждую строчку помещаем в список новостей
+            news_from_each_category.append(post)
+
+        # переменная subscribers содержит информацию о подписчиках, в дальнейшем понадобится их мыло
+        subscribers = category.subscribers.all()
+
+        # Третий цикл - доформирование письма (имя кому отправляем получаем тут) и рассылка готового
+        # письма подписчикам, которые подписаны под данной категорией
+        # создаем приветственное письмо с нашим списком новых за неделю статей конкретной категории,
+        # помещаем в письмо шаблон (html страничку), а также передаем в шаблон нужные нам переменные
+        for subscriber in subscribers:
+            subscriber_username = subscriber.username
+            subscriber_email = subscriber.email
+            html_content = render_to_string(
+                'news/mail_sender.html', {'user': subscriber,
+                                          'text': news_from_each_category,
+                                          'category_name': category.name,
+                                          'week_number_last': week_number_last})
+
+            weekly_email_task(subscriber_username, subscriber_email, html_content)
 
 
 # функция, которая будет удалять неактуальные задачи
 def delete_old_job_executions(max_age=604_800):
-    """This job deletes all apscheduler job executions older than `max_age` from the database."""
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
 
 
@@ -65,21 +83,29 @@ class Command(BaseCommand):
 
         # добавляем работу нашему задачнику
         scheduler.add_job(
-            my_job,
-            trigger=CronTrigger(day_of_week="sat", hour="6", minute="04"),
+            news_sender,
+
+            # для проверки отправки временно задано время срабатывания каждые 10 секунд
+            trigger=CronTrigger(second="*/10"),
+
+            # временно отключеный код
+            # отправляем письма подписчикам в понедельник в 8 утра
+            # trigger=CronTrigger(day_of_week="mon", hour="08", minute="00"),
+
             # То же, что и интервал, но задача тригера таким образом более понятна django
-            id="my_job",  # уникальный айди
+            id="news_sender",  # уникальный айди
             max_instances=1,
             replace_existing=True,
         )
-        logger.info("Added job 'my_job'.")
+        logger.info("Добавлена работка 'news_sender'.")
 
         scheduler.add_job(
             delete_old_job_executions,
             trigger=CronTrigger(
-                day_of_week="mon", hour="10", minute="38"
+                day_of_week="mon", hour="00", minute="00"
             ),
-            # Каждую неделю будут удаляться старые задачи, которые либо не удалось выполнить, либо уже выполнять не надо.
+            # Каждую неделю будут удаляться старые задачи, которые либо не удалось выполнить,
+            # либо уже выполнять не надо.
             id="delete_old_job_executions",
             max_instances=1,
             replace_existing=True,
@@ -89,9 +115,11 @@ class Command(BaseCommand):
         )
 
         try:
-            logger.info("Starting scheduler...")
+            logger.info("Задачник запущен")
+            print('Задачник запущен')
             scheduler.start()
         except KeyboardInterrupt:
-            logger.info("Stopping scheduler...")
+            logger.info("Задачник остановлен")
             scheduler.shutdown()
-            logger.info("Scheduler shut down successfully!")
+            print('Задачник остановлен')
+            logger.info("Задачник остановлен успешно!")

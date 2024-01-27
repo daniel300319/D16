@@ -1,58 +1,108 @@
 {% extends 'flatpages/default.html' %}
 
+{% load my_filters %}
 
-{% load  my_filters %}
-
-
+<!--Открываем блок заголовка -->
+<!--Пишем название заголовка-->
+<!--Закрываем блок заголовка -->
 {% block title %}
-    Список всех новостей
+News
 {% endblock title %}
 
-{% block body %}
+<!--Открываем блок содержания -->
+<!--В этом блоке мы выводим все посты в виде таблицы-->
+{% block content %}
+  <h1>Все публикации</h1>
+  <hr>
+  <!--Открываем блок условия-->
+  <!--Если есть публикации, то выводим их в виде таблицы-->
+  {% if posts %}
+      <!--Открываем тег таблицы-->
+      <table>
+          <!--Открываем тег строки, чтобы описать названия столбцов -->
+          <tr>
+              <!--Открываем тег столбца -->
+              <td>
+                  <b> Редактировать/Удалить &nbsp <!--тег пробела--> </b>
+              <!--Закрываем тег столбца-->
+              </td>
+              <td>
+                  <b> &nbsp Заголовок &nbsp </b>
+              </td>
+              <td>
+                  <b> &nbsp Категория &nbsp </b>
+              </td>
+              <td>
+                  <b> &nbsp Дата публикации &nbsp </b>
+              </td>
+              <td>
+                  <b> &nbsp Автор публикации &nbsp </b>
+              </td>
+              <td>
+                  <b> &nbsp Краткое содержание &nbsp </b>
+              </td>
+          <!--Закрываем тег строки-->
+          </tr>
+      <!--Открываем тег цикла-->
+      <!--В цикле выводим все посты-->
+      {% for post in posts %}  <!-- Для каждого поста генерируется новая строчка, т.е. новый html-код.
+      При этом сам цикл работает также, как и в Python. post — переменная цикла, т. е. наш объект, взятый из общего списка -->
+          <tr>
+              <td>
+                  <!-- При нажатии на имя поста в таблице нас теперь будет перекидывать на страницу с информацией о посте -->
+                  <a href="{% url 'post_detail' post.id %}">{{ post.title|censor }}</a>
+              </td>
+              <td>
+                  {% for category in post.categories.all %}
+                    {% if category.id %}
+                        <a href="{% url 'category_subscription' category.id %}">{{ category }}</a>
+                    {% endif %}
+                  {% endfor %}
 
-    <div style="text-align: center;">
-        <h2>
-            СПИСОК ВСЕХ НОВОСТЕЙ
-        </h2>
-    </div>
-    <div style="text-align: right;">
-        <h7>
-            Доступные для чтения новости: {{ posts|length }}
-        </h7>
-    </div>
-    <hr>
-<!-- Проверяем новости на наличие, выводим, если есть: -->
-    {% if posts %}
-        <div style="text-align: center;">
-            <table width="100%">
-                <tr>
-                    <td align="center">Заголовок</td> 
-                    <td align="center">Дата публикации новости</td> 
-                    <td align="center">Текст поста</td> 
-                    <td align="center">Тип поста</td> 
-                </tr> 
+              </td>
+              <td>
+                  <!--Выводим время создания поста, с фильтром-->
+                  {{ post.created_at|date:'d M Y'}}
+              </td>
+              <td>
+                  <!--Выводим автора поста-->
+                  {{ post.author }}
+              </td>
+              <td>
+                  <!--Выводим содержание поста с использованием фильтра "цензор"-->
+                  <!--фильтр написан в файле custom_filters.py в папке templatetags-->
+                  {{ post.text|truncatechars:50|censor }}
+              </td>
+          </tr>
+      <!--закрываем цикл-->
+      {% endfor %}
+      <!--закрываем таблицу-->
+      </table>
 
-
-                
-                {% for post in posts %}
-                    <tr>
-                        <td align="left"><a href={{ post.pk }}>{{ post.title|censore }}</a></td>
-                        <td align="center">{{ post.created_at|date:'d M Y' }}</td>
-                        <td align="left">{{ post.text|truncatechars:20|censore }}</td>
-                        {% if post.type_post == 'ART' %}
-                            <td>Статья</td>
-                        {% else %}
-                            <td>Новость</td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-
-            </table>
-        </div>
-
-<!-- Если новостей нет, то выводим отбивку -->
-    {% else %}
-        <h2>ДОСТУПНЫХ ДЛЯ ЧТЕНИЯ НОВОСТЕЙ НЕТ</h2>
-    {% endif %}
-
-{% endblock body %}
+      <!--Прописываем постраничный вывод постов-->
+      <!-- Проверяем что поддерживается постраничный вывод -->
+      {% if is_paginated %}
+          <!-- Если доступна предыдущая страница, то даём ссылку на неё и самую первую страницу -->
+          {% if page_obj.has_previous %}
+              <a href="?page=1">First</a>
+              <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
+          {% endif %}
+          <!-- Показываем только текущую страницу и ближайшие к ней, чтобы список не тянулся и не захламлял страницу -->
+          {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                  <a>{{ num }}</a>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <a href="?page={{ num }}">{{ num }}</a>
+              {% endif %}
+          {% endfor %}
+          <!-- Если есть следующая страница, то даём ссылку на неё и на самую последнюю страницу -->
+          {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}">>>></a>
+              <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+          {% endif %}
+      {% endif %}
+  <!--Иначе, выводим сообщение:-->
+  {% else %}
+      <h2>Публикаций нет!</h2>
+  {% endif %}
+{% endblock content %}

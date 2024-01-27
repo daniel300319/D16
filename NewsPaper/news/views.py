@@ -1,21 +1,23 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, reverse, redirect, get_object_or_404
 from datetime import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, Author, Category
+from .models import Post, Author, Category, CategorySubscriber
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
-from .signals import send_notifications
+from .tasks import email_task
+from django.template.loader import render_to_string
+
 class PostsList(ListView):
     model = Post
     ordering = "-created_at"
     template_name = "news.html"
     context_object_name = "posts"
     paginate_by = 10
+
+
 
 class PostDetail(DetailView):
     model = Post
@@ -36,14 +38,10 @@ class PostSearch(ListView):
     context_object_name = 'posts_search'
     paginate_by = 10
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        self.filterset = PostFilter(self.request.GET, queryset=queryset)
-        return self.filterset.qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['filterset'] = self.filterset
+        context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset())
         return context
 
 
@@ -53,7 +51,7 @@ class NewsCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'create_post.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('news')
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -66,7 +64,7 @@ class ArticleCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'create_post.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('news')
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -80,7 +78,7 @@ class NewsEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'create_post.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('news')
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -93,7 +91,7 @@ class ArticleEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'create_post.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('news')
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -104,7 +102,7 @@ class ArticleEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
 class NewsDelete(DeleteView):
     model = Post
     template_name = 'post_delete.html'
-    success_url = reverse_lazy('posts_list')
+    success_url = reverse_lazy('news')
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -116,7 +114,7 @@ class NewsDelete(DeleteView):
 class ArticleDelete(DeleteView):
     model = Post
     template_name = 'post_delete.html'
-    success_url = reverse_lazy('posts_list')
+    success_url = reverse_lazy('news')
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -124,27 +122,57 @@ class ArticleDelete(DeleteView):
         context['previous_page_url'] = reverse_lazy('post_list')
         return context
 
-class CategoryListView(PostsList):
-    model = Post
+class CategoryList(ListView):
+    model = Category
     template_name = 'news/category_list.html'
-    context_object_name = 'category_news_list'
+    context_object_name = 'categories'
 
-    def get_queryset(self):
-        self.category = get_object_or_404(Category, id=self.kwargs['pk'])
-        queryset = Post.objects.filter(categories=self.category).order_by('-created_at')
-        return queryset
+class CategoryDetail(DetailView):
+    # указываем имя шаблона
+    template_name = 'news/category_subscription.html'
+    # указываем модель(таблицу базы данных)
+    model = Category
 
+    # для отображения кнопок подписки (если не подписан: кнопка подписки - видима, и наоборот)
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
-        context['category'] = self.category
+        context = super().get_context_data(**kwargs)  # общаемся к содержимому контекста нашего представления
+        category_id = self.kwargs.get('pk')  # получаем ИД поста (выдергиваем из нашего объекта из модели Категория)
+        # формируем запрос, на выходе получим список имен пользователей subscribers__username, которые находятся
+        # в подписчиках данной группы, либо не находятся
+        category_subscribers = Category.objects.filter(pk=category_id).values("subscribers__username")
+        # Добавляем новую контекстную переменную на нашу страницу, выдает либо правду, либо ложь, в зависимости от
+        # нахождения нашего пользователя в группе подписчиков subscribers
+        context['is_not_subscribe'] = not category_subscribers.filter(
+            subscribers__username=self.request.user).exists()
+        context['is_subscribe'] = category_subscribers.filter(subscribers__username=self.request.user).exists()
         return context
 
 @login_required
-def subscribe(request, pk):
-    user = request.user
-    category = Category.objects.get(id=pk)
-    category.subscribers.add(user)
+def add_subscribe(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    category.subscribers.add(request.user)
+    print('Пользователь', request.user, 'добавлен в подписчики категории:', category)
+    return redirect('news:category_list')
 
-    message = 'You are subscribed'
-    return render(request, 'news/subscribe.html', {'category': category, 'message': message})
+
+def sending_emails_to_subscribers(instance):
+    sub_text = instance.text
+    sub_title = instance.title
+    # получаем нужный объект модели Категория через рк Пост
+    category = Category.objects.get(pk=Post.objects.get(pk=instance.pk).categories.pk)
+    # получаем список подписчиков категории
+    subscribers = category.subscribers.all()
+
+    # проходимся по всем подписчикам в списке
+    for subscriber in subscribers:
+        # создание переменных, которые необходимы для таски
+        subscriber_username = subscriber.username
+        subscriber_useremail = subscriber.email
+        html_content = render_to_string('news/mail.html',
+                                        {'user': subscriber,
+                                         'title': sub_title,
+                                         'text': sub_text[:50],
+                                         'post': instance})
+        # функция для таски, передаем в нее все что нужно для отправки подписчикам письма
+        email_task(subscriber_username, subscriber_useremail, html_content)
+    return redirect('/news/')

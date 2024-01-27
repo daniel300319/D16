@@ -1,13 +1,84 @@
 {% extends 'flatpages/default.html' %}
 
-{% block body %}
-    <center>
-<h2>{{ page_title }}</h2>
+{% block title %}
+Post add
+{% endblock title %}
+
+
+{% block content %}
+<h3>Публикация</h3>
 <hr>
-<form action="", method="post">
+
+<form method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit", value="Сохранить" />
+    <table>
+        <tr>
+            <td>
+                <p align="left">
+                <b>Заголовок &nbsp </b>
+                </p>
+            </td>
+            <td>
+                <p align="left">
+                {{ form.title }}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p align="left">
+                <b>Содержание</b>
+                </p>
+            </td>
+            <td>
+                <p align="left">
+                {{ form.text }}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p align="left">
+                <b>Автор</b>
+                </p>
+            </td>
+            <td>
+                <p align="left">
+                {{ form.author }}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p align="left">
+                <b>Вид</b>
+                </p>
+            </td>
+            <td>
+                <p align="left">
+                {{ form.post_type }}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p align="left">
+                <b>Категория</b>
+                </p>
+            </td>
+             <td>
+                <p align="left">
+                {{ form.categories }}
+                </p>
+            </td>
+        </tr>
+    </table>
+    <br>
+
+    <p align="left">
+
+    <input type="submit" value="Добавить публикацию">
+    </p>
 </form>
-    </center>
-{% endblock body %}
+<br>
+{% endblock content %}

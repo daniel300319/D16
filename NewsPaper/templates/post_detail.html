@@ -1,0 +1,70 @@
+{% extends 'flatpages/default.html' %}
+
+{% load my_filters %}
+
+<!--Описание заголовка-->
+{% block title %}
+Post detail
+{% endblock title %}
+
+<!--Описание содержания страницы-->
+{% block content %}
+<h1>Подробная информация о публикации</h1>
+  <hr>
+<table>
+    <!--Заголовок таблицы-->
+    <thead>
+        <th>
+            <b>Автор публикации &nbsp </b>
+        </th>
+        <th>
+            <b>Тип публикации &nbsp </b>
+        </th>
+        <th>
+            <b>Время публикации &nbsp </b>
+        </th>
+        <th>
+            <b>Категория публикации &nbsp </b>
+        </th>
+        <th>
+            <b>Заголовок публикации &nbsp </b>
+        </th>
+        <th>
+            <b>Содержание публикации &nbsp </b>
+        </th>
+        <th>
+            <b>Рейтинг публикации &nbsp </b>
+        </th>
+    </thead>
+    <!--Наполнение таблицы информацией об объекте из БД-->
+    <tr>
+        <td>
+            {{ post.author }}
+        </td>
+        <td>
+            {{ post.get_post_type_display}}
+        </td>
+        <td>
+            {{ post.created_at|date:'d M Y' }}
+        </td>
+         <td>
+              {% for category in post.categories.all %}
+                {% if category.id %}
+                    <a href="{% url 'category_subscription' category.id %}">{{ category }}</a>
+                {% endif %}
+              {% endfor %}
+
+         </td>
+        <td>
+            {{ post.title }}
+        </td>
+        <td>
+            {{ post.text|truncatechars:50|censor  }}
+        </td>
+        <td>
+            {{ post.rating }}
+        </td>
+    </tr>
+</table>
+<br>
+{% endblock content %}

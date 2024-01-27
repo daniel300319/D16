@@ -15,30 +15,16 @@ class Author(models.Model):
         self.save()
 
 class Category(models.Model):
-    # имя категории - текстовое поле длинной не более 64 сим-ов и уникальное(unique)
-    name = models.CharField(max_length=64, unique=True)
-    subscribers = models.ManyToManyField(User, through='CategorySubscribers')
+    name = models.CharField(max_length=100, unique=True)
+    subscribers = models.ManyToManyField(User, through='CategorySubscriber')
 
-    # Внутренний класс (Мета класс), который используется для определения модели.
     class Meta:
-        # Настройка отображения имени модели в админ панели (ед число)
-        verbose_name = 'Категория'
-        # Настройка отображения имени модели в админ панели (множ число)
-        verbose_name_plural = 'Категории'
-
-    # Данный метод переопределен, чтобы корректно отображать нужную нам
-    # информацию (имя пользователя - автора) в админке
-    def __str__(self):
-        # вывод имени категории в админке в формате "f-строки"
-        return f'{self.name}'
-
-
-class CategorySubscribers(models.Model):
-    sub_categories = models.ForeignKey(Category, on_delete=models.CASCADE)
-    sub_users = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.sub_categories}, {self.sub_users}'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+        ordering = ['id']
+class CategorySubscriber(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Post(models.Model):
     ARTICLE = 'ART'

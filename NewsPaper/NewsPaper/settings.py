@@ -102,7 +102,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
@@ -169,15 +169,16 @@ STATICFILES_DIRS = STATICFILES_DIRS = [
 # LOGIN_URL = 'sign/login/'
 # LOGIN_REDIRECT_URL = '/
 
-load_dotenv()
+# load_dotenv()
 
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER + '@yandex.ru'
+EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
+EMAIL_PORT = 465  # порт smtp сервера тоже одинаковы
+EMAIL_HOST_USER = 'd.agur'
+EMAIL_HOST_PASSWORD = 'eexpuoqeihoolxms'
 
+EMAIL_USE_SSL = 'True'
+DEFAULT_FROM_EMAIL = 'd.agur@yandex.ru'
+SERVER_EMAIL = 'd.agur@yandex.ru'
 
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25

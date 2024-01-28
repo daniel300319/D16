@@ -7,7 +7,7 @@ from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .tasks import email_task
+from .tasks import *
 from django.template.loader import render_to_string
 
 class PostsList(ListView):
@@ -155,24 +155,24 @@ def add_subscribe(request, pk):
     return redirect('news:category_list')
 
 
-def sending_emails_to_subscribers(instance):
-    sub_text = instance.text
-    sub_title = instance.title
-    # получаем нужный объект модели Категория через рк Пост
-    category = Category.objects.get(pk=Post.objects.get(pk=instance.pk).categories.pk)
-    # получаем список подписчиков категории
-    subscribers = category.subscribers.all()
-
-    # проходимся по всем подписчикам в списке
-    for subscriber in subscribers:
-        # создание переменных, которые необходимы для таски
-        subscriber_username = subscriber.username
-        subscriber_useremail = subscriber.email
-        html_content = render_to_string('news/mail.html',
-                                        {'user': subscriber,
-                                         'title': sub_title,
-                                         'text': sub_text[:50],
-                                         'post': instance})
-        # функция для таски, передаем в нее все что нужно для отправки подписчикам письма
-        email_task(subscriber_username, subscriber_useremail, html_content)
-    return redirect('/news/')
+# def sending_emails_to_subscribers(instance):
+#     sub_text = instance.text
+#     sub_title = instance.title
+#     # получаем нужный объект модели Категория через рк Пост
+#     category = Category.objects.get(pk=Post.objects.get(pk=instance.pk).categories.pk)
+#     # получаем список подписчиков категории
+#     subscribers = category.subscribers.all()
+#
+#     # проходимся по всем подписчикам в списке
+#     for subscriber in subscribers:
+#         # создание переменных, которые необходимы для таски
+#         subscriber_username = subscriber.username
+#         subscriber_useremail = subscriber.email
+#         html_content = render_to_string('news/mail.html',
+#                                         {'user': subscriber,
+#                                          'title': sub_title,
+#                                          'text': sub_text[:50],
+#                                          'post': instance})
+#         # функция для таски, передаем в нее все что нужно для отправки подписчикам письма
+#         email_task(subscriber_username, subscriber_useremail, html_content)
+#     return redirect('/news/')

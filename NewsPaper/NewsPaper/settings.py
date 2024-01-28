@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-
 import redis
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -29,6 +32,7 @@ SECRET_KEY = 'django-insecure-4tsg-$_m6v0*j!9+0ho*7g1!!55649cxp&_e)@e%ytl!ge8m=k
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -173,6 +177,7 @@ STATICFILES_DIRS = STATICFILES_DIRS = [
 # LOGIN_REDIRECT_URL = '/
 
 # load_dotenv()
+
 SITE_URL = 'http://127.0.0.1:8000'
 EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
 EMAIL_PORT = 465  # порт smtp сервера тоже одинаковы
@@ -194,3 +199,126 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']  # допустимый формат данных.
 CELERY_TASK_SERIALIZER = 'json'  # метод сериализации задач.
 CELERY_RESULT_SERIALIZER = 'json'  # метод сериализации результатов.
+
+# 16 ЮНИТ
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'style': '{',
+    # --Блок определения формата сообщений для опр. уровня
+    'formatters': {
+        'simple': {          # для стандартных сообщений
+            'format': '%(asctime)-8s %(levelname)-8s %(message)s'  # время возникновения сообщения,уровень логирования,само сообщение
+        },
+        'advanced_path': {  # для сообщений уровня WARNING
+            'format': '%(asctime)-8s %(levelname)-8s %(pathname)-8s %(message)s'  # время возникновения сообщения,уровень логирования,путь к источнику события, само сообщение
+        },
+        'advanced_path_exc': {  # для сообщений ERROR и CRITICAL
+            'format': '%(asctime)-8s %(levelname)-8s %(pathname)-8s %(exc_info)-8s %(message)s'  # время возникновения сообщения,уровень логирования,путь к источнику события,стэк ошибки, само сообщение
+        },
+        'advanced_module': {  # для файлов general.log, уровень INFO
+            'format': '%(asctime)-8s %(levelname)-8s %(module)-8s %(message)s'  # время возникновения сообщения,уровень логирования,модуль в котором вознило сообщение,само сообщение
+        },
+        'security_format': {
+            'format': '%(asctime)s %(levelname)s - %(module)s - %(message)s'
+        },
+    },
+    # --Блок фильтров
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    # --Блок вывода сообщений в консоль для опр. уровней
+    'handlers': {
+        'console_debug': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'console_warning': {
+            'level': 'WARNING',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'advanced_path'
+        },
+        'console_error': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'advanced_path_exc'
+        },
+        # --Блок вывода сообщений в файл general.log
+        'file_general': {
+            'level': 'INFO',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'formatter': 'advanced_module',
+            'filename': 'general.log'
+        },
+        # --Блок вывода сообщений в файл errors.log
+        'file_errors': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'advanced_path_exc',
+            'filename': 'errors.log',
+        },
+        # --Блок вывода сообщений в файл security.log
+        'file_security': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'advanced_module',
+            'filename': 'security.log',
+        },
+        # --Блок для отправки сообщений на почту
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'advanced_path'
+        },
+    },
+    # --Определяем регистраторы
+    'loggers': {
+        # Регистратор django
+        'django': {
+            'handlers': ['console_debug', 'console_warning', 'console_error', 'file_general'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        # Регистратор django.request
+        'django.request': {
+            'handlers': ['file_errors', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        # Регистратор django.server
+        'django.server': {
+            'handlers': ['file_errors', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # Регистратор django.template
+        'django.template': {
+            'handlers': ['file_errors'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # Регистратор django.db_backends
+        'django.db_backends': {
+            'handlers': ['file_errors'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # Регистратор django.security
+        'django.security': {
+            'handlers': ['file_security'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

@@ -1,0 +1,232 @@
+2024-01-28 14:31:16,437 ERROR    C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\utils\log.py (<class 'django.template.exceptions.TemplateSyntaxError'>, TemplateSyntaxError("Invalid filter: 'censore'"), <traceback object at 0x0000021C5461D8C0>) Internal Server Error: /news/7
+Traceback (most recent call last):
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\backends\django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\engine.py", line 175, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+           ^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 481, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 479, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 597, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 693, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 603, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'censore'
+2024-01-28 14:31:16,469 ERROR    C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\servers\basehttp.py None     "GET /news/7 HTTP/1.1" 500 185446
+2024-01-28 14:31:26,875 ERROR    C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\utils\log.py (<class 'django.template.exceptions.TemplateSyntaxError'>, TemplateSyntaxError("Invalid filter: 'censore'"), <traceback object at 0x0000021C54862740>) Internal Server Error: /news/search/
+Traceback (most recent call last):
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\backends\django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\engine.py", line 175, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+           ^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\defaulttags.py", line 860, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 481, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 479, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 597, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 693, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 603, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'censore'
+2024-01-28 14:31:26,888 ERROR    C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\servers\basehttp.py None     "GET /news/search/ HTTP/1.1" 500 256189
+2024-01-28 14:32:44,564 ERROR    C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\utils\log.py (<class 'django.template.exceptions.TemplateSyntaxError'>, TemplateSyntaxError("Invalid filter: 'censore'"), <traceback object at 0x0000021C546B5F00>) Internal Server Error: /news/search/
+Traceback (most recent call last):
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\backends\django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\engine.py", line 175, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+           ^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\defaulttags.py", line 860, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 481, in parse
+    raise self.error(token, e)
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 479, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 597, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 693, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\template\base.py", line 603, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'censore'
+2024-01-28 14:32:44,581 ERROR    C:\Users\dagur\PycharmProjects\NewsPortal_task\venv\Lib\site-packages\django\core\servers\basehttp.py None     "GET /news/search/ HTTP/1.1" 500 253542

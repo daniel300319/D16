@@ -26,9 +26,9 @@
                 </tr>
                 {% for post in posts_search %}
                     <tr>
-                        <td align="left"><a href={{ post.pk }}>{{ post.title|censore }}</a></td>
+                        <td align="left"><a href={{ post.pk }}>{{ post.title|censor }}</a></td>
                         <td align="center">{{ post.created_at|date:'d M Y' }}</td>
-                        <td align="left">{{ post.text|truncatechars:20|censore }}</td>
+                        <td align="left">{{ post.text|truncatechars:20|censor }}</td>
                         {% if post.type_post == 'ART' %}
                             <td>Статья</td>
                         {% else %}

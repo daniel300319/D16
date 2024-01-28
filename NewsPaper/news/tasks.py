@@ -2,11 +2,9 @@ from django.core.mail import EmailMultiAlternatives
 from celery import shared_task
 from django.template.loader import render_to_string
 from datetime import *
-from NewsPaper.NewsPaper import settings
-from NewsPaper.NewsPaper.settings import SITE_URL
-from NewsPaper.news.models import Post, Category
-
-
+from .models import Post, Category
+DEFAULT_FROM_EMAIL = 'd.agur@yandex.ru'
+SITE_URL = 'http://127.0.0.1:8000'
 @shared_task
 def notify_about_new_post(instance):
         categories = instance.category.all()
@@ -30,14 +28,14 @@ def week_news_notification():
     html_content = render_to_string(
         'daily_post.html',
         {
-            'link': settings.SITE_URL,
+            'link': SITE_URL,
             'posts': posts,
         }
     )
     msg = EmailMultiAlternatives(
         subject='Статьи за неделю',
         body='',
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=DEFAULT_FROM_EMAIL,
         to=subscribers,
     )
     msg.attach_alternative(html_content, 'text/html')
@@ -58,7 +56,7 @@ def send_notification(preview, pk, post_title, subscribers):
     msg = EmailMultiAlternatives(
         subject=post_title,
         body='',
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=DEFAULT_FROM_EMAIL,
         to=subscribers,
     )
 
